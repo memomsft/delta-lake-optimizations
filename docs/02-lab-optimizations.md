@@ -77,11 +77,13 @@ LOCATION 'Tables/sales';
 
 ## B. Baseline Measurements
 
-Before optimizing, we measure:
-- **Full table scan** — to see the cost of reading all files.
-- **Selective filter** — to see the cost of reading only a subset of data.
+Before optimizing, it’s important to measure performance so we can compare later.  
+We will measure two things:
 
-This baseline lets you compare performance **before and after OPTIMIZE**.
+1. **Full table scan** – how long it takes to count all rows.  
+2. **Selective filter** – how long it takes to count only rows where `country='US' AND category='electronics'`.
+
+Run the following code:
 
 ```python
 import time
@@ -93,7 +95,7 @@ def timed(f):
     print(f"⏱ {dt:0.2f}s")
     return out
 
-# Warm-up
+# Warm-up (loads data once so we don’t measure cluster spin-up time)
 spark.table("sales").count()
 
 # Full table scan
@@ -101,7 +103,11 @@ timed(lambda: spark.table("sales").count())
 
 # Selective filter
 timed(lambda: spark.table("sales").where("country='US' AND category='electronics'").count())
+
 ```
+
+Take note of the execution times printed in the output (for example: ⏱ 8.52s).
+Later, you will run these same queries again after OPTIMIZE and Z-ORDER to compare performance improvements.
 
 ---
 
@@ -124,6 +130,9 @@ ZORDER BY (country, category)
 VORDER;
 
 ```
+
+After running OPTIMIZE, re-run the **Baseline Measurements** section from above to compare execution times before vs. after.
+You should notice faster scans, especially on selective filters (country='US' AND category='electronics').
 
 ---
 
