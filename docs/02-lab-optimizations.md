@@ -115,6 +115,8 @@ print(f"⏱ Baseline scan took: {time.time() - start:.2f} seconds")
 Take note of the execution times printed in the output (for example: ⏱ 8.52s).
 Later, you will run these same queries again after OPTIMIZE and Z-ORDER to compare performance improvements.
 
+![Setup](img/opti2.png)
+
 ---
 
 ## C. OPTIMIZE, V-Order & Z-Order
