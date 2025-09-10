@@ -202,6 +202,8 @@ SELECT COUNT(*) FROM sales;
 
 This exercise demonstrates how table history and time travel can be used to recover from accidental deletes or updates without requiring a full restore from backups like in traditional analytic solutions.
 
+---
+
 ## E. VACUUM
 
 > ⚠️ **Important:** `VACUUM` permanently deletes files no longer referenced by the Delta log. Run only in a **lab/test environment** unless retention requirements are known.
