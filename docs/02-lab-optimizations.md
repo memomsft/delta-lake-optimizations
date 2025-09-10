@@ -168,7 +168,7 @@ SELECT COUNT(*) FROM sales;
 
 Let's view the table history again, you will see a new `DELETE` entry with a higher version:
 
-``sql
+```sql
 
 %%sql
 DESCRIBE HISTORY sales;
