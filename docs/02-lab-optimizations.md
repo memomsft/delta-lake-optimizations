@@ -130,10 +130,10 @@ VORDER;
 
 ```
 
-<p align="center">
-  <img src="img/zorder.png" alt="Z-Order Visual" width="200"/>
-  <img src="img/vorder.png" alt="V-Order Visual" width="200"/>
-</p>
+| Z-Order | V-Order |
+|--------|---------|
+| <img src="img/zorder.png" width="95%"> | <img src="img/vorder.png" width="95%"> |
+
 
 <p align="center">
 <b>Left:</b> Z-Order clusters rows across files, reducing the number of files scanned.<br>
