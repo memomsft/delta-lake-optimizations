@@ -160,7 +160,12 @@ This frees up storage, but also **limits how far back you can time travel**.
 - Always run `DRY RUN` first to see what would be deleted.
 
 ```sql
--- VACUUM examples
+
+%%sql
+VACUUM sales DRY RUN;
+
+VACUUM sales RETAIN 168 HOURS;
+
 ```
 
 ---
@@ -178,7 +183,19 @@ Best practices:
 - Combine partitioning with Z-Order for additional selective filters.
 
 ```python
-# Partitioned write and query code
+(spark.table("sales")
+ .repartition("country")
+ .write.format("delta").mode("overwrite")
+ .option("overwriteSchema","true")
+ .save("Tables/sales_by_country"))
+
+spark.sql("""
+CREATE OR REPLACE TABLE sales_by_country
+USING DELTA LOCATION 'Tables/sales_by_country'
+""")
+
+spark.sql("SELECT COUNT(*) FROM sales_by_country WHERE country='US'").show()
+
 ```
 
 ---
@@ -191,7 +208,10 @@ Use `cache()` or `persist()` for intermediate results that you will reuse **mult
 Always call `unpersist()` when done to free memory.
 
 ```python
-# Cache example code
+df_us_elec = spark.table("sales").where("country='US' AND category='electronics'").cache()
+df_us_elec.count()
+df_us_elec.unpersist()
+
 ```
 
 ---
@@ -206,7 +226,19 @@ Defining the schema manually:
 - Improves job startup times.
 
 ```python
-# Schema definition example
+from pyspark.sql.types import *
+
+orders_schema = StructType([
+  StructField("order_id", LongType()),
+  StructField("order_ts", TimestampType()),
+  StructField("country", StringType()),
+  StructField("category", StringType()),
+  StructField("price", DoubleType()),
+  StructField("quantity", IntegerType())
+])
+
+df = spark.read.schema(orders_schema).csv("Files/raw/*.csv")
+
 ```
 
 ---
