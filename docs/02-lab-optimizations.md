@@ -130,6 +130,10 @@ VORDER;
 
 ```
 
+![Zorder](img/zorder.png)
+
+![Vorder](img/vorder.png)
+
 After running OPTIMIZE, re-run the **Baseline Measurements** section from above to compare execution times before vs. after.
 You should notice faster scans, especially on selective filters (country='US' AND category='electronics').
 
