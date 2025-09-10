@@ -64,11 +64,12 @@ df = (spark.range(N_ROWS)
 
 Register as table
 
+```sql
 %%sql
 CREATE TABLE IF NOT EXISTS sales
 USING DELTA
 LOCATION 'Tables/sales';
-
+```
 
 ---
 
