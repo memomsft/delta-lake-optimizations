@@ -23,6 +23,9 @@ Small files increase metadata overhead and slow down queries — this is exactly
 from pyspark.sql.types import *
 import pyspark.sql.functions as F
 
+# -------------------------------
+# 1. Define schema & table path
+# -------------------------------
 N_ROWS = 5_000_000
 N_PARTS = 400
 DATA_PATH = "Tables/sales"
@@ -39,6 +42,22 @@ schema = StructType([
     StructField("status", StringType(), False),
 ])
 
+# -------------------------------
+# 2. Create empty table first
+# -------------------------------
+empty_df = spark.createDataFrame([], schema)
+empty_df.write.format("delta").mode("overwrite").save(DATA_PATH)
+
+# Register the table explicitly in the Lakehouse metastore
+spark.sql(f"""
+CREATE TABLE IF NOT EXISTS sales
+USING DELTA
+LOCATION '{DATA_PATH}'
+""")
+
+# -------------------------------
+# 3. Generate sample data
+# -------------------------------
 countries = ["US","CA","MX","UK","DE","FR","ES","BR","IN","JP"]
 cats      = ["electronics","apparel","home","grocery","toys","sport"]
 statuses  = ["paid","shipped","delivered","returned","cancelled"]
@@ -55,20 +74,14 @@ df = (spark.range(N_ROWS)
       .withColumn("status", F.element_at(F.array(*[F.lit(s) for s in statuses]), (F.rand()*len(statuses)+1).cast("int")))
       .drop("id"))
 
+# -------------------------------
+# 4. Write data into the table
+# -------------------------------
 (df.repartition(N_PARTS)
-   .write.format("delta").mode("overwrite")
+   .write.format("delta")
+   .mode("overwrite")
    .option("overwriteSchema", "true")
    .save(DATA_PATH))
-```
-
-Register as table
-
-```sql
-
-%%sql
-CREATE TABLE IF NOT EXISTS sales
-USING DELTA
-LOCATION 'Tables/sales';
 
 ```
 
@@ -87,21 +100,15 @@ Run the following code:
 ```python
 import time
 
-def timed(f):
-    t0 = time.time()
-    out = f()
-    dt = time.time() - t0
-    print(f"⏱ {dt:0.2f}s")
-    return out
+start = time.time()
+result = spark.sql("""
+SELECT *
+FROM sales_delta
+WHERE country='US' AND category='electronics'
+""")
+result.count()
+print(f"⏱ Baseline scan took: {time.time() - start:.2f} seconds")
 
-# Warm-up (loads data once so we don’t measure cluster spin-up time)
-spark.table("sales").count()
-
-# Full table scan
-timed(lambda: spark.table("sales").count())
-
-# Selective filter
-timed(lambda: spark.table("sales").where("country='US' AND category='electronics'").count())
 
 ```
 
