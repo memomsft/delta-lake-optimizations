@@ -169,6 +169,7 @@ SELECT COUNT(*) FROM sales;
 Let's view the table history again, you will see a new `DELETE` entry with a higher version:
 
 ``sql
+
 %%sql
 DESCRIBE HISTORY sales;
 
@@ -184,9 +185,12 @@ SELECT COUNT(*) FROM sales VERSION AS OF <previous_version_number>;
 We can see that there are more rows as this is the original version. So, let's restore the table to the earlier state by replacing its contents with the previous content:
 
 ```sql
+
 %%sql
 CREATE OR REPLACE TABLE sales
 AS SELECT * FROM sales VERSION AS OF <previous_version_number>;
+
+```
 ---
 
 Now, let's verify the row count is back to normal:
