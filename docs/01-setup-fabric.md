@@ -4,6 +4,7 @@ All steps are done through the UI — no CLI is required.
 
 ## 1. Create a Lakehouse
 Go to **Fabric Home → Data Engineering → Lakehouse → Create**  
+
 Name it `lakehouse_opt_lab`.
 
 ## 2. Create a Notebook
