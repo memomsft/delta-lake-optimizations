@@ -37,6 +37,20 @@ Data engineers and analytics engineers who want a practical understanding of **h
 
 ---
 
+## 🧰 Prerequisites
+
+To complete this workshop, you will need:
+
+- **Microsoft Fabric capacity** – either a Fabric trial (F64 capacity or higher) or a paid capacity-enabled workspace.
+- **Workspace permissions** to create Lakehouses and Notebooks.
+- **Basic familiarity with Python / PySpark** – you should be comfortable running code cells and reading basic DataFrame operations.
+- **Basic understanding of Delta Lake tables** – this guide will introduce the concepts, but some knowledge of tables and SQL is assumed.
+
+> 💡 If you are new to Fabric, check out [Get started with Microsoft Fabric](https://learn.microsoft.com/fabric/get-started/overview) before beginning this lab.
+
+
+---
+
 ## 🚀 How to Start
 1. Read the [Overview](docs/00-overview.md) to understand Delta Lake concepts.
 2. Follow [Setup Guide](docs/01-setup-fabric.md) to prepare your Lakehouse and Notebook.
@@ -53,3 +67,6 @@ Data engineers and analytics engineers who want a practical understanding of **h
 ## 📌 Maintainer
 Maintained by [@memomsft](https://github.com/memomsft).  
 Suggestions and feedback are welcome — open an Issue or reach out on Teams.
+
+
+
