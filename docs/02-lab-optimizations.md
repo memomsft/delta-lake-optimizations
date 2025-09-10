@@ -131,8 +131,8 @@ VORDER;
 ```
 
 <p align="center">
-  <img src="/img/zorder.png" alt="Z-Order Visual" width="45%"/>
-  <img src="/img/vorder.png" alt="V-Order Visual" width="45%"/>
+  <img src="img/zorder.png" alt="Z-Order Visual" width="45%"/>
+  <img src="img/vorder.png" alt="V-Order Visual" width="45%"/>
 </p>
 
 <p align="center">
