@@ -88,12 +88,6 @@ We will measure two things:
 1. **Full table scan** – how long it takes to count all rows.  
 2. **Selective filter** – how long it takes to count only rows where `country='US' AND category='electronics'`.
 
-> 💡 **Tip for Accurate Benchmarking**
-
-> To avoid cached results affecting the timing, restart your Spark session (or cluster) before re-running the query below.
-> In Fabric Notebooks: **Stop session** then **New standard session**
-> This ensures a true "cold read" so you can clearly observe the performance improvement after `OPTIMIZE` or `ZORDER`. This might take longer considering the cluster warm up time.
-
 Run the following code:
 
 ```python
@@ -113,7 +107,7 @@ print(f"⏱ Baseline scan took: {time.time() - start:.2f} seconds")
 ```
 
 Take note of the execution times printed in the output (for example: ⏱ 8.52s).
-Later, you will run these same queries again after OPTIMIZE and Z-ORDER to compare performance improvements.
+Later, you will run these same queries again after OPTIMIZE VORDER to compare performance improvements.
 
 ![Setup](img/opti2.png)
 
@@ -124,20 +118,39 @@ Later, you will run these same queries again after OPTIMIZE and Z-ORDER to compa
 **OPTIMIZE** is Delta's *bin-packing* process — it merges many small files into fewer larger ones, improving read efficiency.
 
 - **V-Order** (Fabric only): optimizes column order & Parquet layout for faster scans.
-- **Z-Order**: physically co-locates rows with similar column values, reducing data read for common filters.
+- **Z-Order**: physically co-locates rows with similar column values, reducing data read for common filters. (Only applicable on Databricks)
 
 Use `OPTIMIZE ... VORDER` to compact files, and optionally add `ZORDER BY (...)` to improve query selectivity performance.
+
+
+Let's check that OPTIMIZE is not enabled at table level first by checking the table properties
+
+```sql
+
+%%sql
+DESCRIBE EXTENDED sales
+
+```
+It seems is not explictly enabled as there is no VORDER property populated
+
+![Setup](img/opti3.png)
+
 
 ```sql
 
 %%sql
 OPTIMIZE sales VORDER;
 
-OPTIMIZE sales
-ZORDER BY (country, category)
-VORDER;
+--Optional (this is more for Databricks)
+--OPTIMIZE sales
+--#ZORDER BY (country, category)
+--#VORDER;
 
 ```
+If we run `DESCRIBE EXTENDED sales` again it will show that now **VORDER is enabled** at table level which means its optimized.
+
+![Setup](img/opti4.png)
+
 
 | Z-Order | V-Order |
 |--------|---------|
@@ -151,6 +164,10 @@ VORDER;
 
 After running OPTIMIZE, re-run the **Baseline Measurements** section from above to compare execution times before vs. after.
 You should notice faster scans, especially on selective filters (country='US' AND category='electronics').
+
+Let's run the baseline measurement cell again to compare the results
+
+![Setup](img/opti5.png)
 
 ---
 
