@@ -82,21 +82,6 @@ Before optimizing, we measure:
 This baseline lets you compare performance **before and after OPTIMIZE**.
 
 ```python
-# Baseline timing code here
-```
-
----
-
-## C. OPTIMIZE, V-Order & Z-Order
-
-**OPTIMIZE** is Delta's *bin-packing* process — it merges many small files into fewer larger ones, improving read efficiency.
-
-- **V-Order** (Fabric only): optimizes column order & Parquet layout for faster scans.
-- **Z-Order**: physically co-locates rows with similar column values, reducing data read for common filters.
-
-Use `OPTIMIZE ... VORDER` to compact files, and optionally add `ZORDER BY (...)` to improve query selectivity performance.
-
-```sql
 import time
 
 def timed(f):
@@ -114,6 +99,21 @@ timed(lambda: spark.table("sales").count())
 
 # Selective filter
 timed(lambda: spark.table("sales").where("country='US' AND category='electronics'").count())
+```
+
+---
+
+## C. OPTIMIZE, V-Order & Z-Order
+
+**OPTIMIZE** is Delta's *bin-packing* process — it merges many small files into fewer larger ones, improving read efficiency.
+
+- **V-Order** (Fabric only): optimizes column order & Parquet layout for faster scans.
+- **Z-Order**: physically co-locates rows with similar column values, reducing data read for common filters.
+
+Use `OPTIMIZE ... VORDER` to compact files, and optionally add `ZORDER BY (...)` to improve query selectivity performance.
+
+```sql
+
 
 ```
 
