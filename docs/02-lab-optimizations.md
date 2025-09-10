@@ -75,7 +75,7 @@ df = (spark.range(N_ROWS)
 
 ```
 
-
+![Setup](img/opti1.png)
 
 
 ---
