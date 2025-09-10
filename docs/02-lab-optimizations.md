@@ -139,7 +139,12 @@ You can query table **history** to audit operations or understand how data chang
 Useful for debugging, reproducing ML training datasets, or auditing compliance snapshots.
 
 ```sql
--- DESCRIBE HISTORY and time travel query examples
+
+%%sql
+DESCRIBE HISTORY sales;
+
+SELECT COUNT(*) FROM sales VERSION AS OF 0;
+
 ```
 
 ---
