@@ -129,7 +129,8 @@ VORDER;
 
 ## D. Table History & Time Travel
 
-Delta Lake keeps a transaction log (`_delta_log`) with every commit.  
+Delta Lake keeps a transaction log (`_delta_log`) with every commit which is part of the **ACID transactions** capabilities (Atomicity, Consistency, Isolation, Durability), meaning every write operation is fully consistent and logged. This allows you to travel back to previous versions of a table if something goes wrong.
+
 You can query table **history** to audit operations or understand how data changed over time.
 
 **Time Travel** lets you query data as it was at:
@@ -147,7 +148,55 @@ SELECT COUNT(*) FROM sales VERSION AS OF 0;
 
 ```
 
+In order to test this time travel feature, let's now simulate a mistake in the data. For example we will delete some rows as an accidental operation:
+
+```sql
+
+%%sql
+DELETE FROM sales WHERE country = 'US';
+
+```
+
+Verify the count after our delete
+
+```sql
+
+%%sql
+SELECT COUNT(*) FROM sales;
+
+```
+
+Let's view the table history again, you will see a new `DELETE` entry with a higher version:
+
+``sql
+%%sql
+DESCRIBE HISTORY sales;
+
+```
+
+Let's query the table as of the version before the delete operation
+
+```sql
+%%sql
+SELECT COUNT(*) FROM sales VERSION AS OF <previous_version_number>;
+```
+
+We can see that there are more rows as this is the original version. So, let's restore the table to the earlier state by replacing its contents with the previous content:
+
+```sql
+%%sql
+CREATE OR REPLACE TABLE sales
+AS SELECT * FROM sales VERSION AS OF <previous_version_number>;
 ---
+
+Now, let's verify the row count is back to normal:
+
+```sql
+%%sql
+SELECT COUNT(*) FROM sales;
+```
+
+This exercise demonstrates how table history and time travel can be used to recover from accidental deletes or updates without requiring a full restore from backups like in traditional analytic solutions.
 
 ## E. VACUUM
 
