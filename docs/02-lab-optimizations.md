@@ -191,7 +191,7 @@ CREATE OR REPLACE TABLE sales
 AS SELECT * FROM sales VERSION AS OF <previous_version_number>;
 
 ```
----
+
 
 Now, let's verify the row count is back to normal:
 
