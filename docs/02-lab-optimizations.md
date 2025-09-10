@@ -115,12 +115,14 @@ timed(lambda: spark.table("sales").where("country='US' AND category='electronics
 Use `OPTIMIZE ... VORDER` to compact files, and optionally add `ZORDER BY (...)` to improve query selectivity performance.
 
 ```sql
+
 %%sql
 OPTIMIZE sales VORDER;
 
 OPTIMIZE sales
 ZORDER BY (country, category)
 VORDER;
+
 ```
 
 ---
