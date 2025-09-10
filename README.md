@@ -41,7 +41,7 @@ Data engineers and analytics engineers who want a practical understanding of **h
 
 To complete this workshop, you will need:
 
-- **Microsoft Fabric capacity** – either a Fabric trial (F64 capacity or higher) or a paid capacity-enabled workspace.
+- **Microsoft Fabric capacity** – either a Fabric trial (F-SKU capacity) or a paid capacity-enabled workspace.
 - **Workspace permissions** to create Lakehouses and Notebooks.
 - **Basic familiarity with Python / PySpark** – you should be comfortable running code cells and reading basic DataFrame operations.
 - **Basic understanding of Delta Lake tables** – this guide will introduce the concepts, but some knowledge of tables and SQL is assumed.
