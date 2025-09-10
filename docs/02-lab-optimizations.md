@@ -97,7 +97,24 @@ This baseline lets you compare performance **before and after OPTIMIZE**.
 Use `OPTIMIZE ... VORDER` to compact files, and optionally add `ZORDER BY (...)` to improve query selectivity performance.
 
 ```sql
--- SQL OPTIMIZE commands here
+import time
+
+def timed(f):
+    t0 = time.time()
+    out = f()
+    dt = time.time() - t0
+    print(f"⏱ {dt:0.2f}s")
+    return out
+
+# Warm-up
+spark.table("sales").count()
+
+# Full table scan
+timed(lambda: spark.table("sales").count())
+
+# Selective filter
+timed(lambda: spark.table("sales").where("country='US' AND category='electronics'").count())
+
 ```
 
 ---
