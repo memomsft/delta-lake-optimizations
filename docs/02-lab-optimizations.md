@@ -202,10 +202,17 @@ spark.sql("SELECT COUNT(*) FROM sales_by_country WHERE country='US'").show()
 
 ## G. Cache / Persist
 
-Spark recomputes transformations every time you reuse a DataFrame unless you **cache** or **persist** it.
+Spark will recompute a DataFrame each time it is referenced, unless you **cache** or **persist** it.
 
-Use `cache()` or `persist()` for intermediate results that you will reuse **multiple times** in the same notebook/job.  
-Always call `unpersist()` when done to free memory.
+- `cache()` is simply a shorthand for `persist(StorageLevel.MEMORY_AND_DISK)` — it stores the DataFrame in memory if possible, and spills to disk if needed.
+- `persist()` allows more granular control, e.g., only memory, memory+disk, serialized, or even off-heap.
+
+| Method | When to Use | Trade-offs |
+|-------|-------------|-----------|
+| **cache()** | Default option when you just need to reuse a DataFrame multiple times in the same notebook. | Easiest to use, stores in memory+disk. |
+| **persist(level)** | When you need specific storage level control (e.g., MEMORY_ONLY for super-fast small datasets, DISK_ONLY for very large). | Gives control but requires you to choose level manually. |
+
+Always call `unpersist()` when done to free resources.
 
 ```python
 df_us_elec = spark.table("sales").where("country='US' AND category='electronics'").cache()
