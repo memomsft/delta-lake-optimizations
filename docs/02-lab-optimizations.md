@@ -52,7 +52,6 @@ empty_df.write.format("delta").mode("overwrite").save(DATA_PATH)
 spark.sql(f"""
 CREATE TABLE IF NOT EXISTS sales
 USING DELTA
-LOCATION '{DATA_PATH}'
 """)
 
 # -------------------------------
@@ -62,9 +61,11 @@ countries = ["US","CA","MX","UK","DE","FR","ES","BR","IN","JP"]
 cats      = ["electronics","apparel","home","grocery","toys","sport"]
 statuses  = ["paid","shipped","delivered","returned","cancelled"]
 
+
 df = (spark.range(N_ROWS)
       .withColumn("order_id", F.col("id"))
-      .withColumn("order_ts", F.expr("timestamp'2024-01-01 00:00:00' + interval (cast(rand()*300 as int)) day"))
+      .withColumn("order_ts", date_add(lit("2024-01-01"), (F.rand()*300).cast("int")))
+      .withColumn("order_ts", F.col("order_ts").cast("timestamp"))
       .withColumn("customer_id", (F.rand()*100000).cast("int"))
       .withColumn("country", F.element_at(F.array(*[F.lit(c) for c in countries]), (F.rand()*len(countries)+1).cast("int")))
       .withColumn("category", F.element_at(F.array(*[F.lit(c) for c in cats]), (F.rand()*len(cats)+1).cast("int")))
