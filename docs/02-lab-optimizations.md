@@ -20,6 +20,7 @@ Small files increase metadata overhead and slow down queries — this is exactly
 
 
 ```python
+
 from pyspark.sql.types import *
 import pyspark.sql.functions as F
 
@@ -43,19 +44,7 @@ schema = StructType([
 ])
 
 # -------------------------------
-# 2. Create empty table first
-# -------------------------------
-empty_df = spark.createDataFrame([], schema)
-empty_df.write.format("delta").mode("overwrite").save(DATA_PATH)
-
-# Register the table explicitly in the Lakehouse metastore
-spark.sql(f"""
-CREATE TABLE IF NOT EXISTS sales
-USING DELTA
-""")
-
-# -------------------------------
-# 3. Generate sample data
+# 2. Generate sample data
 # -------------------------------
 countries = ["US","CA","MX","UK","DE","FR","ES","BR","IN","JP"]
 cats      = ["electronics","apparel","home","grocery","toys","sport"]
@@ -64,7 +53,7 @@ statuses  = ["paid","shipped","delivered","returned","cancelled"]
 
 df = (spark.range(N_ROWS)
       .withColumn("order_id", F.col("id"))
-      .withColumn("order_ts", date_add(lit("2024-01-01"), (F.rand()*300).cast("int")))
+      .withColumn("order_ts", F.date_add(F.lit("2024-01-01"), (F.rand()*300).cast("int")))
       .withColumn("order_ts", F.col("order_ts").cast("timestamp"))
       .withColumn("customer_id", (F.rand()*100000).cast("int"))
       .withColumn("country", F.element_at(F.array(*[F.lit(c) for c in countries]), (F.rand()*len(countries)+1).cast("int")))
@@ -76,7 +65,7 @@ df = (spark.range(N_ROWS)
       .drop("id"))
 
 # -------------------------------
-# 4. Write data into the table
+# 3. Write data into the table
 # -------------------------------
 (df.repartition(N_PARTS)
    .write.format("delta")
@@ -85,6 +74,9 @@ df = (spark.range(N_ROWS)
    .save(DATA_PATH))
 
 ```
+
+
+
 
 ---
 
