@@ -31,7 +31,7 @@ Data engineers and analytics engineers who want a practical understanding of **h
 ## 🔎 Visual Overview
 
 <p align="center">
-  <img src="docs/img/optimize-before-after.png" alt="OPTIMIZE effect" width="450"/><br>
+  <img src="docs/img/optimize.jpg" alt="OPTIMIZE effect" width="450"/><br>
   <i>From many small files to fewer, larger files with OPTIMIZE</i>
 </p>
 
