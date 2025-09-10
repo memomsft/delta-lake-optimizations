@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/img/delta-lake.png" alt="Delta Lake" width="200"/>
+  <img src="docs/img/delta-lake.png" alt="Delta Lake" width="300"/>
 </p>
 
 <h1 align="center">Delta Lake Optimizations – Microsoft Fabric Workshop</h1>
