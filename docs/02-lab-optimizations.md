@@ -18,7 +18,6 @@ This lab introduces the most important **Delta Lake performance and maintenance 
 We start by creating a synthetic dataset with **many small files**, which is a common performance issue in data lakes.  
 Small files increase metadata overhead and slow down queries — this is exactly what `OPTIMIZE` solves.
 
-![Before and after OPTIMIZE](img/optimize-before-after.png)
 
 ```python
 from pyspark.sql.types import *
