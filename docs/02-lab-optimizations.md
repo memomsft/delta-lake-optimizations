@@ -238,7 +238,9 @@ VACUUM sales RETAIN 168 HOURS;
 Partitioning divides data into subfolders by a column value (e.g. `country=US/`).  
 It allows Spark to **prune** unnecessary partitions when filtering — speeding up reads.
 
+
 ![Partition Pruning](img/pruning.png)
+
 
 Best practices:
 - Choose **low/medium cardinality** columns.
