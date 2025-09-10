@@ -130,9 +130,15 @@ VORDER;
 
 ```
 
-![Zorder](img/zorder.png)
+<p align="center">
+  <img src="docs/img/zorder.png" alt="Z-Order Visual" width="45%"/>
+  <img src="docs/img/vorder.png" alt="V-Order Visual" width="45%"/>
+</p>
 
-![Vorder](img/vorder.png)
+<p align="center">
+<b>Left:</b> Z-Order clusters rows across files, reducing the number of files scanned.<br>
+<b>Right:</b> V-Order optimizes layout within files, improving columnar compression and read performance.
+</p>
 
 After running OPTIMIZE, re-run the **Baseline Measurements** section from above to compare execution times before vs. after.
 You should notice faster scans, especially on selective filters (country='US' AND category='electronics').
