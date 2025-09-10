@@ -23,3 +23,5 @@ spark.range(1, 3).show()
 ```
 
 If you see output with numbers 0, 1, 2 — your cluster is working and ready.
+
+![Setup](img/setup1.png)
