@@ -96,7 +96,7 @@ import time
 start = time.time()
 result = spark.sql("""
 SELECT *
-FROM sales_delta
+FROM sales
 WHERE country='US' AND category='electronics'
 """)
 result.count()
