@@ -88,9 +88,16 @@ We will measure two things:
 1. **Full table scan** – how long it takes to count all rows.  
 2. **Selective filter** – how long it takes to count only rows where `country='US' AND category='electronics'`.
 
+> 💡 **Tip for Accurate Benchmarking**
+
+> To avoid cached results affecting the timing, restart your Spark session (or cluster) before re-running the query below.
+> In Fabric Notebooks: **Stop session** then **New standard session**
+> This ensures a true "cold read" so you can clearly observe the performance improvement after `OPTIMIZE` or `ZORDER`. This might take longer considering the cluster warm up time.
+
 Run the following code:
 
 ```python
+
 import time
 
 start = time.time()
