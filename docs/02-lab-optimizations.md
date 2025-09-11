@@ -311,7 +311,7 @@ It allows Spark to **prune** unnecessary partitions when filtering — speeding 
 
 ![Partition Pruning](img/pruning.png)
 
-✅ When to Partition
+**✅ When to Partition**
 
 Partitioning is most beneficial when:
 
@@ -320,30 +320,25 @@ Partitioning is most beneficial when:
 - Column has low-to-moderate cardinality:
 
 ✅ Good: country, region, year, month, status
+
 ❌ Bad: customer_id, order_id, timestamp (too many partitions)
 
-⚠️ When Not to Partition
+**⚠️ When Not to Partition**
 
-Avoid partitioning when:
+**Avoid partitioning when:**
 
 - The table is small (less than a few hundred MBs).
 - Partition column has very high cardinality (hundreds of thousands/millions of distinct values).
 - You query across all partitions most of the time (no benefit, extra overhead).
 - You mostly do aggregations across partitions (overhead > benefit).
 
-🔑 Partition Sizing Guidelines
+**🔑 Partition Sizing Guidelines**
 
 - Target files of ~128–512 MB per partition after compaction/OPTIMIZE.
 - Avoid having too many small files — you can end up with "over-partitioning".
 - Ideal number of partitions:
 - At least a few MBs per partition
 - At most a few thousand partitions per table
-
-
-Best practices:
-- Choose **low/medium cardinality** columns.
-- Don’t over-partition — too many small partitions = too many small files.
-- Combine partitioning with Z-Order for additional selective filters.
 
 
 ```python
