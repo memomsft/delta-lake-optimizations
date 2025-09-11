@@ -162,10 +162,27 @@ If we run `DESCRIBE EXTENDED sales` again it will show that now **VORDER is enab
 <b>Right:</b> V-Order optimizes layout within files, improving columnar compression and read performance.
 </p>
 
+
 After running OPTIMIZE, re-run the **Baseline Measurements** section from above to compare execution times before vs. after.
 You should notice faster scans, especially on selective filters (country='US' AND category='electronics').
 
-Let's run the baseline measurement cell again to compare the results
+Let's run the baseline measurement cell again to compare the results, but now let's clear the Spark Session cache first.
+
+```python
+
+spark.catalog.clearCache()
+
+import time
+start = time.time()
+result = spark.sql("""
+SELECT *
+FROM sales
+WHERE country='US' AND category='electronics'
+""")
+result.count()
+print(f"⏱ Baseline scan took: {time.time() - start:.2f} seconds")
+
+```
 
 ![Setup](img/opti5.png)
 
