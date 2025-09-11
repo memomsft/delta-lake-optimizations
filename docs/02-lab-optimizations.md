@@ -231,6 +231,8 @@ SELECT COUNT(*) FROM sales;
 
 ```
 
+![Setup](img/opti7.png)
+
 Let's view the table history again, you will see a new `DELETE` entry with a higher version:
 
 ```sql
@@ -239,13 +241,16 @@ Let's view the table history again, you will see a new `DELETE` entry with a hig
 DESCRIBE HISTORY sales;
 
 ```
+![Setup](img/opti8.png)
 
 Let's query the table as of the version before the delete operation
 
 ```sql
 %%sql
-SELECT COUNT(*) FROM sales VERSION AS OF <previous_version_number>;
+SELECT COUNT(*) FROM sales VERSION AS OF 2; -- in this case is the version 2, the one where we setup VORDER
 ```
+
+![Setup](img/opti9.png)
 
 We can see that there are more rows as this is the original version. So, let's restore the table to the earlier state by replacing its contents with the previous content:
 
@@ -253,7 +258,7 @@ We can see that there are more rows as this is the original version. So, let's r
 
 %%sql
 CREATE OR REPLACE TABLE sales
-AS SELECT * FROM sales VERSION AS OF <previous_version_number>;
+AS SELECT * FROM sales VERSION AS OF 2;
 
 ```
 
@@ -263,7 +268,14 @@ Now, let's verify the row count is back to normal:
 ```sql
 %%sql
 SELECT COUNT(*) FROM sales;
+
+DESCRIBE HISTORY sales;
+
 ```
+
+Now we can see the original number of rows before the deletion and also the newwer version of this table (version 4) shows the table replacement we just did
+
+![Setup](img/opti10.png)
 
 This exercise demonstrates how table history and time travel can be used to recover from accidental deletes or updates without requiring a full restore from backups like in traditional analytic solutions.
 
