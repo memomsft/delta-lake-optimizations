@@ -221,6 +221,7 @@ In order to test this time travel feature, let's now simulate a mistake in the d
 DELETE FROM sales WHERE country = 'US';
 
 ```
+---
 
 Verify the count after our delete
 
@@ -241,6 +242,7 @@ Let's view the table history again, you will see a new `DELETE` entry with a hig
 DESCRIBE HISTORY sales;
 
 ```
+
 ![Setup](img/opti8.png)
 
 Let's query the table as of the version before the delete operation
@@ -261,7 +263,7 @@ CREATE OR REPLACE TABLE sales
 AS SELECT * FROM sales VERSION AS OF 2;
 
 ```
-
+---
 
 Now, let's verify the row count is back to normal:
 
@@ -272,6 +274,7 @@ SELECT COUNT(*) FROM sales;
 DESCRIBE HISTORY sales;
 
 ```
+---
 
 Now we can see the original number of rows before the deletion and also the newer version of this table (version 4) shows the table replacement we just did
 
@@ -352,6 +355,8 @@ Let's put this on practice by partitioning our existing sales data by the column
  .partitionBy("country")
  .save("Tables/sales_by_country"))
 
+---
+
 # 2️⃣ Register the table from its Delta location
 spark.sql("""
 CREATE TABLE IF NOT EXISTS sales_by_country
@@ -359,8 +364,12 @@ USING DELTA
 LOCATION 'Tables/sales_by_country'
 """)
 
+---
+
 # 3️⃣ Verify partitioning
 spark.sql("DESCRIBE DETAIL sales_by_country").select("partitionColumns").show(truncate=False)
+
+---
 
 # 4️⃣ Query with partition pruning
 spark.sql("""
@@ -613,12 +622,16 @@ SET TBLPROPERTIES (
 
 ```
 
+---
+
 **3️⃣ Trigger Collection by Writing or Optimizing**
 
 ```sql
 %%sql
 OPTIMIZE sales_by_country
 ```
+
+---
 
 **4️⃣ Verify Table Statistics**
 
@@ -640,10 +653,13 @@ display(df2)
 
 ```
 
+
 **💡 Note:** You should see output with statistics — confirming that stats were collected.
 
 ![Setup](img/opti18.png)
 ![Setup](img/opti19.png)
+
+---
 
 **5️⃣ Recomputing Statistics (Informative)**
 
@@ -683,6 +699,7 @@ We'll run an aggregation query, compare the physical plans before and after reco
 -- 1️⃣ Disable stats temporarily to simulate missing/stale stats
 ALTER TABLE sales_by_country SET TBLPROPERTIES('delta.stats.extended.collect' = false, 'delta.stats.extended.inject' = false)
 ```
+---
 
 ```python
 print("🔍 Query Plan WITHOUT Statistics")
@@ -696,6 +713,7 @@ GROUP BY country
 display(df3)
 
 ```
+---
 Let's check the statistics disabled
 
 ```python
@@ -705,11 +723,13 @@ display(df3)
 
 ![Setup](img/opti20.png)
 
+---
 ```sql
 %%sql
 -- 2️⃣ Re-enable statistics (and force a refresh with OPTIMIZE)
 ALTER TABLE sales_by_country SET TBLPROPERTIES('delta.stats.extended.collect' = true, 'delta.stats.extended.inject' = true)
 ```
+---
 
 ```python
 # Trigger stats collection by running OPTIMIZE
@@ -725,7 +745,7 @@ GROUP BY country
 display(df4)
 
 ```
-
+---
 Let's check the statistics enabled again
 
 ```python
@@ -734,7 +754,7 @@ display(df4)
 ```
 
 ![Setup](img/opti21.png)
-
+---
 Let's also verify statistics (in Scala)
 
 ```spark
@@ -746,6 +766,8 @@ println(s"colName: $attrName distinctCount: ${colStat.distinctCount} min: ${colS
 **Note** Statistics not always appear inmediately so if nothing is retrieved in the output try by inserting or updating the table just to vidsualize the stats.
 
 ![Setup](img/opti22.png)
+
+---
 
 **✅ What to Look For**
 In the first plan, Spark may choose a generic aggregation strategy and read more data than necessary.
