@@ -213,6 +213,8 @@ SELECT COUNT(*) FROM sales VERSION AS OF 0;
 
 ![Setup](img/opti6.png)
 
+---
+
 In order to test this time travel feature, let's now simulate a mistake in the data. For example we will delete some rows as an accidental operation:
 
 ```sql
@@ -245,6 +247,8 @@ DESCRIBE HISTORY sales;
 
 ![Setup](img/opti8.png)
 
+---
+
 Let's query the table as of the version before the delete operation
 
 ```sql
@@ -253,6 +257,8 @@ SELECT COUNT(*) FROM sales VERSION AS OF 2; -- in this case is the version 2, th
 ```
 
 ![Setup](img/opti9.png)
+
+---
 
 We can see that there are more rows as this is previous version before the deletion. So, let's restore the table to this earlier version by using the time travel feature:
 
