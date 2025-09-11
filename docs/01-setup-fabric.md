@@ -2,7 +2,6 @@
   <img src="img/fabrix.png" alt="Fabric" width="400" style="border-radius: 15px; border: 1px solid #ddd;"/>
 </p>
 
-</p>
 
 # 01 — Setup in Microsoft Fabric (UI)
 
