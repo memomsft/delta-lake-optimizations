@@ -386,7 +386,16 @@ We can also query this table using the partition definition in the subsequent Sp
 
 ## G. Cache / Persist
 
-Spark will recompute a DataFrame each time it is referenced, unless you **cache** or **persist** it.
+**🧠 Understanding cache() and persist() in Spark**
+
+By default, Spark builds a logical plan for each DataFrame.
+Whenever you re-use that DataFrame in multiple actions (e.g., .count(), .show(), .write()), Spark recomputes it from scratch — scanning the source, applying filters, joins, and transformations again.
+
+This can be expensive for big datasets.
+
+**✅ Why Use Cache / Persist**
+
+Caching lets Spark store the results of a DataFrame in memory (and optionally disk), so future actions reuse the stored data instead of recomputing.
 
 - `cache()` is simply a shorthand for `persist(StorageLevel.MEMORY_AND_DISK)` — it stores the DataFrame in memory if possible, and spills to disk if needed.
 - `persist()` allows more granular control, e.g., only memory, memory+disk, serialized, or even off-heap.
@@ -398,12 +407,59 @@ Spark will recompute a DataFrame each time it is referenced, unless you **cache*
 
 Always call `unpersist()` when done to free resources.
 
+**📌 When Caching is Useful**
+
+- Iterative algorithms (ML training loops, aggregations on the same dataset).
+- Exploratory data analysis where you run many queries on the same DataFrame.
+- Multiple actions on the same transformation chain:
+
 ```python
-df_us_elec = spark.table("sales").where("country='US' AND category='electronics'").cache()
-df_us_elec.count()
-df_us_elec.unpersist()
+  df = (spark.read.format("delta").load("Tables/sales")
+        .filter("country='US'")
+        .withColumn("total", F.col("price") * F.col("quantity")))
+
+df.cache()  # avoids recomputation below
+
+print(df.count())   # Action 1
+display(df.groupBy("category").count())  # Action 2
+```
+
+- Checkpointing intermediate results before expensive operations like joins.
+
+**⚠️ When Not to Cache**
+
+- If you only use the DataFrame once.
+- If the dataset is too large to fit in memory and you risk evicting other important data.
+- If your cluster has limited resources — caching can actually slow things down by causing memory pressure and spilling.
+
+
+Let's put some of these concepts into practice:
+
+```python
+import time
+
+df = spark.table("sales").filter("country='US'")
+
+# Without cache
+start = time.time()
+df.count()
+print(f"⏱ First count (no cache): {time.time()-start:.2f}s")
+
+# Cache it
+df.cache()
+df.count()  # materializes the cache
+
+# Second action should be faster
+start = time.time()
+df.count()
+print(f"⏱ Second count (cached): {time.time()-start:.2f}s")
+
 
 ```
+
+Notice that the second count runs much faster — proving the effect of caching.
+
+![Setup](img/opti14.png)
 
 ---
 
