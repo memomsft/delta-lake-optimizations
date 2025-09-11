@@ -569,6 +569,172 @@ df_schema.printSchema()
 
 ---
 
+## I. Automated Table Statistics in Fabric Spark
+
+**📊 Automated Table Statistics in Fabric**
+
+Automated Table Statistics in Microsoft Fabric automatically collect row counts, column-level min/max values, null counts, distinct counts, and column lengths for the first 32 columns of every Delta table.
+These statistics help Spark’s Cost-Based Optimizer (CBO) choose better query plans, which can lead to ~45% faster performance for joins, filters, and aggregations.
+
+**✨ Key Benefits**
+
+✅ No need to manually run ANALYZE TABLE — statistics are collected automatically at write time.
+✅ Improves query planning, join strategies, and partition pruning.
+✅ Stored in lightweight Parquet format to avoid bloating data files.
+✅ Can be controlled per session or per table.
+
+Let's do some exercises:
+
+**1️⃣ Enable Extended Stats Collection and Statistic Injection into the Optimizer (Session Level)**
+
+```python
+# Enable collection of extended statistics
+spark.conf.set("spark.microsoft.delta.stats.collect.extended", "true")
+
+# Enable optimizer injection of statistics
+spark.conf.set("spark.microsoft.delta.stats.injection.enabled", "true")
+
+# To disable simply set the flag to `false`
+
+```
+**💡 Note:** Delta log statistics collection (spark.databricks.delta.stats.collect) must be enabled (true by default in Fabric).
+
+**2️⃣ Enable Statistics on a Specific Table** (It overrides session configs)
+
+```sql
+%%sql
+ALTER TABLE sales_by_country
+SET TBLPROPERTIES (
+  'delta.stats.extended.collect' = true,
+  'delta.stats.extended.inject' = true
+)
+
+-- To disable simply set the flag to `false`
+
+```
+
+**3️⃣ Trigger Collection by Writing or Optimizing**
+
+```sql
+%%sql
+OPTIMIZE sales_by_country
+```
+
+**4️⃣ Verify Table Statistics**
+
+
+```python
+# Show query plan (includes row count estimates if statistics are enabled)
+df =spark.sql("""
+EXPLAIN EXTENDED
+SELECT country, COUNT(*) AS cnt
+FROM sales_by_country
+GROUP BY country
+""")
+display(df)
+
+# And to manually check statistics metadata, you can use:
+
+df2=spark.sql("DESCRIBE DETAIL sales_by_country")
+display(df2)
+
+```
+
+**💡 Note:** You should see output with statistics — confirming that stats were collected.
+
+![Setup](img/opti18.png)
+![Setup](img/opti19.png)
+
+**5️⃣ Recomputing Statistics (Informative)**
+
+In some cases, table statistics can become stale or incomplete, for example:
+
+- After a schema change (adding/dropping columns)
+- After major data updates or partial overwrites
+- When statistics collection was disabled during write operations
+
+You can refresh statistics manually using one of these methods:
+
+```python
+from pyspark.sql.delta import StatisticsStore
+
+# 1️⃣ Remove old statistics (recommended after schema changes)
+StatisticsStore.removeStatisticsData(spark, "sales_by_country")
+
+# 2️⃣ Recompute statistics with compaction
+StatisticsStore.recomputeStatisticsWithCompaction(spark, "sales_by_country")
+```
+
+**🧪 Exercise: See the Effect of Statistics on Query Plans**
+
+We'll run an aggregation query, compare the physical plans before and after recomputing statistics, and notice the difference.
+
+```sql
+%%sql
+-- 1️⃣ Disable stats temporarily to simulate missing/stale stats
+ALTER TABLE sales_by_country SET TBLPROPERTIES('delta.stats.extended.collect' = false, 'delta.stats.extended.inject' = false)
+```
+
+```python
+print("🔍 Query Plan WITHOUT Statistics")
+df3 =spark.sql("""
+EXPLAIN EXTENDED
+SELECT country, COUNT(*) AS cnt, AVG(price) AS avg_price
+FROM sales_by_country
+GROUP BY country
+""")
+
+display(df3)
+
+```
+Let's check the statistics disabled
+
+```python
+df3=spark.sql("DESCRIBE DETAIL sales_by_country")
+display(df3)
+```
+
+![Setup](img/opti20.png)
+
+```sql
+%%sql
+-- 2️⃣ Re-enable statistics (and force a refresh with OPTIMIZE)
+ALTER TABLE sales_by_country SET TBLPROPERTIES('delta.stats.extended.collect' = true, 'delta.stats.extended.inject' = true)
+```
+
+```python
+# Trigger stats collection by running OPTIMIZE
+spark.sql("OPTIMIZE sales_by_country")
+
+print("🔍 Query Plan WITH Statistics")
+df4=spark.sql("""
+EXPLAIN EXTENDED
+SELECT country, COUNT(*) AS cnt, AVG(price) AS avg_price
+FROM sales_by_country
+GROUP BY country
+""")
+display(df4)
+
+```
+
+Let's check the statistics enabled again
+
+```python
+df4=spark.sql("DESCRIBE DETAIL sales_by_country")
+display(df4)
+```
+
+![Setup](img/opti21.png)
+
+**✅ What to Look For**
+In the first plan, Spark may choose a generic aggregation strategy and read more data than necessary.
+
+After recomputing stats, you may see:
+- Better join/aggregation planning (e.g., broadcast hint usage, shuffle optimization).
+- More accurate row estimates in the plan (check the Statistics line).
+- Potentially smaller shuffle partitions or improved stage parallelism.
+
+
 ## 🏁 Summary
 
 By the end of this lab you will have:
@@ -578,15 +744,16 @@ By the end of this lab you will have:
 - Cleaned up old files with `VACUUM`.
 - Experimented with partitioning strategies.
 - Applied caching, persistence, and schema definition for performance.
+- Collect and activate table statistics
 
 
 ---
 
 ## 📚 Learn More
 
-- [Delta Lake documentation](https://docs.delta.io/latest/index.html)
-- [Microsoft Fabric – Lakehouse table maintenance](https://learn.microsoft.com/fabric/data-engineering/lakehouse-optimize-vacuum)
-- [V-Order write optimization in Fabric](https://learn.microsoft.com/fabric/data-engineering/v-order)
-- [OPTIMIZE and Z-Order in Fabric](https://learn.microsoft.com/fabric/data-engineering/optimize-zorder)
+- [Delta Lake documentation](https://docs.delta.io/index.html)
+- [Microsoft Fabric – Lakehouse table maintenance](https://learn.microsoft.com/en-us/fabric/data-engineering/delta-optimization-and-v-order?tabs=sparksql)
+- [Automated Table Statistics in Fabric Spark](https://learn.microsoft.com/en-us/fabric/data-engineering/automated-table-statistics)
 
-> 💡 You can run `DESCRIBE DETAIL sales` to see current table properties including V-Order default setting.
+
+
