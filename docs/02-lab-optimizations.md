@@ -311,27 +311,79 @@ It allows Spark to **prune** unnecessary partitions when filtering — speeding 
 
 ![Partition Pruning](img/pruning.png)
 
+✅ When to Partition
+
+Partitioning is most beneficial when:
+
+- Large tables (typically millions+ rows, multiple GBs).
+- Queries frequently filter on a single column (e.g., WHERE country = 'US').
+- Column has low-to-moderate cardinality:
+
+✅ Good: country, region, year, month, status
+❌ Bad: customer_id, order_id, timestamp (too many partitions)
+
+⚠️ When Not to Partition
+
+Avoid partitioning when:
+
+- The table is small (less than a few hundred MBs).
+- Partition column has very high cardinality (hundreds of thousands/millions of distinct values).
+- You query across all partitions most of the time (no benefit, extra overhead).
+- You mostly do aggregations across partitions (overhead > benefit).
+
+🔑 Partition Sizing Guidelines
+
+- Target files of ~128–512 MB per partition after compaction/OPTIMIZE.
+- Avoid having too many small files — you can end up with "over-partitioning".
+- Ideal number of partitions:
+- At least a few MBs per partition
+- At most a few thousand partitions per table
+
 
 Best practices:
 - Choose **low/medium cardinality** columns.
 - Don’t over-partition — too many small partitions = too many small files.
 - Combine partitioning with Z-Order for additional selective filters.
 
+
 ```python
+# 1️⃣ Write the partitioned Delta table
 (spark.table("sales")
- .repartition("country")
- .write.format("delta").mode("overwrite")
- .option("overwriteSchema","true")
+ .write.format("delta")
+ .mode("overwrite")
+ .option("overwriteSchema", "true")
+ .partitionBy("country")
  .save("Tables/sales_by_country"))
 
+# 2️⃣ Register the table from its Delta location
 spark.sql("""
-CREATE OR REPLACE TABLE sales_by_country
-USING DELTA LOCATION 'Tables/sales_by_country'
+CREATE TABLE IF NOT EXISTS sales_by_country
+USING DELTA
+LOCATION 'Tables/sales_by_country'
 """)
 
-spark.sql("SELECT COUNT(*) FROM sales_by_country WHERE country='US'").show()
+# 3️⃣ Verify partitioning
+spark.sql("DESCRIBE DETAIL sales_by_country").select("partitionColumns").show(truncate=False)
+
+# 4️⃣ Query with partition pruning
+spark.sql("""
+SELECT COUNT(*)
+FROM sales_by_country
+WHERE country = 'US'
+""").show()
+
 
 ```
+
+![Setup](img/opti11.png)
+
+Also, if we take a look at the underlying parquet files, now we can see that we have multiple folders, one per partition (country)
+
+![Setup](img/opti12.png)
+
+We can also query this table using the partition definition in the subsequent Spark read operations allowing for deterministic scanning also if needed.
+
+![Setup](img/opti13.png)
 
 ---
 
