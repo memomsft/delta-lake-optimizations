@@ -653,7 +653,7 @@ In some cases, table statistics can become stale or incomplete, for example:
 - After major data updates or partial overwrites
 - When statistics collection was disabled during write operations
 
-You can refresh statistics manually using one of these methods:
+Normally, you could refresh statistics manually using the **StatisticsStore API**:
 
 ```python
 from pyspark.sql.delta import StatisticsStore
@@ -664,6 +664,15 @@ StatisticsStore.removeStatisticsData(spark, "sales_by_country")
 # 2️⃣ Recompute statistics with compaction
 StatisticsStore.recomputeStatisticsWithCompaction(spark, "sales_by_country")
 ```
+
+**⚠️ Important Note for Fabric Users:**
+Although this API is mentioned in Microsoft Fabric documentation, it is not currently supported in Fabric Spark notebooks byt the time we wrote this.
+As a workaround, you can refresh statistics by:
+
+`Running OPTIMIZE <table>`
+`Or rewriting the table (mode("overwrite"))` to trigger stats recalculation.
+
+---
 
 **🧪 Exercise: See the Effect of Statistics on Query Plans**
 
@@ -725,6 +734,18 @@ display(df4)
 ```
 
 ![Setup](img/opti21.png)
+
+Let's also verify statistics (in Scala)
+
+```spark
+spark.read.table("sales_by_country").queryExecution.optimizedPlan.stats.attributeStats.foreach { case (attrName, colStat) =>
+println(s"colName: $attrName distinctCount: ${colStat.distinctCount} min: ${colStat.min} max: ${colStat.max} nullCount: ${colStat.nullCount} avgLen: ${colStat.avgLen} maxLen: ${colStat.maxLen}")
+    }
+```
+
+**Note** Statistics not always appear inmediately so if nothing is retrieved in the output try by inserting or updating the table just to vidsualize the stats.
+
+![Setup](img/opti22.png)
 
 **✅ What to Look For**
 In the first plan, Spark may choose a generic aggregation strategy and read more data than necessary.
