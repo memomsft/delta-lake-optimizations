@@ -233,7 +233,7 @@ SELECT COUNT(*) FROM sales;
 
 ![Setup](img/opti7.png)
 
-Let's view the table history again, you will see a new `DELETE` entry with a higher version:
+Let's view the table history again, you will see a new `DELETE` entry with a higher version (3):
 
 ```sql
 
@@ -252,7 +252,7 @@ SELECT COUNT(*) FROM sales VERSION AS OF 2; -- in this case is the version 2, th
 
 ![Setup](img/opti9.png)
 
-We can see that there are more rows as this is the original version. So, let's restore the table to the earlier state by replacing its contents with the previous content:
+We can see that there are more rows as this is previous version before the deletion. So, let's restore the table to this earlier version by using the time travel feature:
 
 ```sql
 
@@ -273,7 +273,7 @@ DESCRIBE HISTORY sales;
 
 ```
 
-Now we can see the original number of rows before the deletion and also the newwer version of this table (version 4) shows the table replacement we just did
+Now we can see the original number of rows before the deletion and also the newer version of this table (version 4) shows the table replacement we just did
 
 ![Setup](img/opti10.png)
 
