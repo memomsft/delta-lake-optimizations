@@ -341,7 +341,7 @@ Partitioning is most beneficial when:
 - At most a few thousand partitions per table
 
 
-Let's put this on practice by partitioning our existing sales table by the column `country` and generate a new table name `sales_by_country`
+Let's put this on practice by partitioning our existing sales data by the column `country` and generate a new table name `sales_by_country`
 
 ```python
 # 1️⃣ Write the partitioned Delta table
