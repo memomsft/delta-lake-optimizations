@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="img/fabrix.png" alt="Fabric" width="250"/>
+  <img src="img/fabrix.png" alt="Fabric" width="400"/>
 </p>
 
 # 01 — Setup in Microsoft Fabric (UI)
