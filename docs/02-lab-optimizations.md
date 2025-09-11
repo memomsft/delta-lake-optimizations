@@ -495,17 +495,77 @@ Let's do a quick experiment:
 1️⃣ Upload the Dataset to Fabric
 
 1. Download the dataset:
-📥 orders_dataset.csv (place this file under data/raw/ in your repo for distribution)
+📥 orders_dataset.csv from files/ directory on this repo
 
-2. Go to **Fabric Portal → Lakehouse → Files**.
+2. Go to **Fabric Portal → Lakehouse → Files** and create a new subfolder named `raw`
 
-3. Click Upload → Browse and select orders_dataset.csv.
+3. Click **Upload → Upload files → Browse and select orders_dataset.csv**
 
-4. Place it inside a folder named **raw/**. The final path should be: `/Files/raw/orders_dataset.csv`
-
+4. Place it inside **raw/**. The final path should be: `/Files/raw/orders_dataset.csv`
 
 ![Setup](img/opti15.png)
 
+Now, let's go to our Notebook or create a new one to read this file and validate **InferSchema and explicit schema definition**
+
+
+2️⃣ Read the Dataset with inferSchema
+
+```python
+import time
+
+start = time.time()
+
+df_infer = (spark.read
+    .option("header", "true")
+    .option("inferSchema", "true")
+    .csv("Files/raw/orders_dataset.csv")
+)
+
+print(f"⏱ Read with inferSchema took: {time.time() - start:.2f} seconds")
+df_infer.printSchema()
+
+```
+
+**💡 Observation:** Spark will scan the entire file to infer data types, which is expensive for large datasets.
+
+![Setup](img/opti16.png)
+
+
+3️⃣ Define Schema Explicitly and Read
+
+```python
+from pyspark.sql.types import *
+
+orders_schema = StructType([
+    StructField("order_id", LongType(), False),
+    StructField("order_ts", TimestampType(), False),
+    StructField("customer_id", IntegerType(), False),
+    StructField("country", StringType(), False),
+    StructField("category", StringType(), False),
+    StructField("price", DoubleType(), False),
+    StructField("quantity", IntegerType(), False),
+    StructField("total", DoubleType(), False),
+    StructField("status", StringType(), False),
+])
+
+start = time.time()
+
+df_schema = (spark.read
+    .option("header", "true")
+    .schema(orders_schema)
+    .csv("Files/raw/orders_dataset.csv")
+)
+
+print(f"⏱ Read with manual schema took: {time.time() - start:.2f} seconds")
+df_schema.printSchema()
+
+
+```
+
+![Setup](img/opti17.png)
+
+
+**💡 Observation:** This approach avoids the extra file scan and speeds up job startup time — especially relevant when you know the schema in advance.
 
 ---
 
