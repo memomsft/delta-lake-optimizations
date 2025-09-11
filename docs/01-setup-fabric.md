@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/img/fabrix.jpg" alt="Fabric" width="250"/>
+</p>
+
 # 01 — Setup in Microsoft Fabric (UI)
 
 All steps are done through the UI — no CLI is required.
