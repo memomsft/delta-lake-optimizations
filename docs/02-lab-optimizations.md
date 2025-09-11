@@ -490,6 +490,23 @@ df = spark.read.schema(orders_schema).csv("Files/raw/*.csv")
 
 ```
 
+Let's do a quick experiment:
+
+1️⃣ Upload the Dataset to Fabric
+
+1. Download the dataset:
+📥 orders_dataset.csv (place this file under data/raw/ in your repo for distribution)
+
+2. Go to **Fabric Portal → Lakehouse → Files**.
+
+3. Click Upload → Browse and select orders_dataset.csv.
+
+4. Place it inside a folder named **raw/**. The final path should be: `/Files/raw/orders_dataset.csv`
+
+
+![Setup](img/opti15.png)
+
+
 ---
 
 ## 🏁 Summary
