@@ -200,6 +200,8 @@ You can query table **history** to audit operations or understand how data chang
 
 Useful for debugging, reproducing ML training datasets, or auditing compliance snapshots.
 
+Let's check the history of our table with `DESCRIBE HISTORY` which will give us the operations on this table over time. Then, we will count the records on this table as of the version 0 back from we performed the initial writing as per the historical output.
+
 ```sql
 
 %%sql
@@ -208,6 +210,8 @@ DESCRIBE HISTORY sales;
 SELECT COUNT(*) FROM sales VERSION AS OF 0;
 
 ```
+
+![Setup](img/opti6.png)
 
 In order to test this time travel feature, let's now simulate a mistake in the data. For example we will delete some rows as an accidental operation:
 
