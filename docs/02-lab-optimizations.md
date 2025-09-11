@@ -461,7 +461,7 @@ Notice that the second count runs much faster — proving the effect of caching.
 
 ![Setup](img/opti14.png)
 
-⚠️ Remember to **UNPERSIST** the dataframe from cache to free up memory by executing **unpersist** on your dataframe when done --> df.unpersist()`
+⚠️ Remember to **UNPERSIST** the dataframe from cache to free up memory by executing **unpersist** on your dataframe when done --> `df.unpersist()`
 
 ---
 
