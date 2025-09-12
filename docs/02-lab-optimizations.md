@@ -593,10 +593,10 @@ These statistics help Spark’s Cost-Based Optimizer (CBO) choose better query p
 
 **✨ Key Benefits**
 
-✅ No need to manually run ANALYZE TABLE — statistics are collected automatically at write time.
-✅ Improves query planning, join strategies, and partition pruning.
-✅ Stored in lightweight Parquet format to avoid bloating data files.
-✅ Can be controlled per session or per table.
+- ✅ No need to manually run ANALYZE TABLE — statistics are collected automatically at write time.
+- ✅ Improves query planning, join strategies, and partition pruning.
+- ✅ Stored in lightweight Parquet format to avoid bloating data files.
+- ✅ Can be controlled per session or per table.
 
 Let's do some exercises:
 
